@@ -25,7 +25,7 @@ def create_validation_data(training_data):
 
 
 # Baseline model 1: Predictions = Average number of visitors for the whole
-# period in training data
+# period in training data [SCORE: 576.08072]
 predictions = np.mean(train['visitors_pool_total'])
 test['visitors_pool_total'] = predictions
 
