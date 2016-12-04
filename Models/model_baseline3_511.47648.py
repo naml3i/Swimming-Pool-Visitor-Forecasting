@@ -30,26 +30,18 @@ for iter in xrange(CROSS_VALIDATION_ITER):
     test_validation = test_validation.reset_index(drop=True)
     train_validation['day_of_week'] = pd.DatetimeIndex(
         train_validation['date']).weekday
-    for row in xrange(train_validation.shape[0]):
-        train_validation.loc[row, 'weekend'] = 1 \
-            if train_validation.loc[row, 'day_of_week'] >= 5 else 0
     train_validation_combined = train_validation[
-        ['visitors_pool_total', 'weekend']]
+        ['visitors_pool_total', 'day_of_week']]
     train_validation_combined = train_validation_combined.groupby(
-        ['weekend']).mean().reset_index()
+        ['day_of_week']).mean().reset_index()
     train_validation_dict = train_validation_combined.to_dict()
 
     test_validation['day_of_week'] = pd.DatetimeIndex(
         test_validation['date']).weekday
     for row in xrange(test_validation.shape[0]):
-        test_validation.loc[row, 'weekend'] = 1 \
-            if test_validation.loc[row, 'day_of_week'] >= 5 else 0
-
-    for row in xrange(test_validation.shape[0]):
         test_validation.loc[row, 'predict_visitors'] = \
-            train_validation_dict['visitors_pool_total'][0] \
-                if test_validation.loc[row, 'weekend'] == 0 \
-                else train_validation_dict['visitors_pool_total'][1]
+            train_validation_dict['visitors_pool_total'][
+                test_validation.loc[row, 'day_of_week']]
 
     test_validation['residual'] = test_validation['visitors_pool_total'] - \
         test_validation['predict_visitors']
@@ -61,26 +53,20 @@ RMSE = np.mean(rmse_group)
 RMSE_by_base = RMSE / np.mean(train['visitors_pool_total'])
 
 
-# Baseline model 2: Predictions = Average number of visitors based on weekday
-# or weekend [SCORE: 526.31883]
+# Baseline model 3: Predictions = Average number of visitors based on day of
+# the week [SCORE: 511.47648]
 train['day_of_week'] = pd.DatetimeIndex(train['date']).weekday
-for row in xrange(train.shape[0]):
-    train.loc[row, 'weekend'] = 1 if train.loc[row, 'day_of_week'] >= 5 else 0
-train_combined = train[['visitors_pool_total', 'weekend']]
-train_combined = train_combined.groupby(['weekend']).mean().reset_index()
+train_combined = train[['visitors_pool_total', 'day_of_week']]
+train_combined = train_combined.groupby(['day_of_week']).mean().reset_index()
 train_dict = train_combined.to_dict()
 
 test['day_of_week'] = pd.DatetimeIndex(test['date']).weekday
 for row in xrange(test.shape[0]):
-    test.loc[row, 'weekend'] = 1 if test.loc[row, 'day_of_week'] >= 5 else 0
-
-for row in xrange(test.shape[0]):
     test.loc[row, 'visitors_pool_total'] = train_dict[
-        'visitors_pool_total'][0] if test.loc[row, 'weekend'] == 0 \
-        else train_dict['visitors_pool_total'][1]
+        'visitors_pool_total'][test.loc[row, 'day_of_week']]
 
 
 # Creating a submission file
 submission_model = test[['date', 'visitors_pool_total']]
-submission_model.to_csv('../Submissions/submission_baseline2_ ' +
+submission_model.to_csv('../Submissions/submission_baseline3_ ' +
                         str(RMSE_by_base) + '.csv', index=False)
