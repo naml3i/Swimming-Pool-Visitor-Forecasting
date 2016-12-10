@@ -63,6 +63,17 @@ model.fit(train[predictors], train['visitors_pool_total'])
 test['visitors_pool_total'] = model.predict(test[predictors])
 test['visitors_pool_total'] = test['visitors_pool_total'].astype(int)
 
+# Key drivers/drainers
+coefficients = dict()
+for predictor in predictors:
+    coefficients[predictor] = list(model.coef_)[predictors.index(predictor)]
+coefficients = dict((k, '%.1f' % v) for k, v in coefficients.iteritems()
+                    if abs(v) > 9e-2)
+# print coefficients
+{'price_reduced_90min': '313.7', 'school_holiday': '212.1', 'wind_direction_E': '28.3',
+ 'temperature_UniOS': '14.6', 'month': '-25.3', 'wind_direction_NE': '-1.9',
+ 'sloop_days_since_opening': '0.2', 'day_of_week': '91.8', 'sportbad_closed': '131.2'}
+
 
 # Plot cross-validated predictions
 fig, ax = plt.subplots()

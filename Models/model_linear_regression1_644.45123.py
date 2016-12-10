@@ -64,6 +64,18 @@ RMSE_by_base = RMSE / np.mean(train['visitors_pool_total'])
 model.fit(train[predictors], train['visitors_pool_total'])
 test['visitors_pool_total'] = model.predict(test[predictors])
 
+# Key drivers/drainers
+coefficients = dict()
+for predictor in predictors:
+    coefficients[predictor] = list(model.coef_)[predictors.index(predictor)]
+coefficients = dict((k, '%.1f' % v) for k, v in coefficients.iteritems()
+                    if abs(v) >= 100.)
+# print coefficients
+{'price_adult_max': '861.2', 'price_reduced_90min': '-1368.6', 'school_holiday': '244.2',
+ 'kursbecken_closed': '-242.7', 'sauna_closed': '145.1', 'freizeitbad_closed': '-281.3',
+ 'sloop_dummy': '546.3', 'sportbad_closed': '120.3', 'price_reduced_max': '-438.2',
+ 'price_adult_90min': '463.1', 'event': '399.6'}
+
 
 # Plot cross-validated predictions
 fig, ax = plt.subplots()
