@@ -19,7 +19,7 @@ def create_validation_data(training_data):
     return train_validation, test_validation
 
 
-# Creating ridge regression object (alpha = 0.5, max_iter=1000000,
+# Creating ridge regression object (alpha = 0.4, max_iter=1000000,
 # tol=0.0000001) and predictors
 model = linear_model.Ridge(alpha=0.4, fit_intercept=True, normalize=True,
                            max_iter=1000000, tol=0.0000001, solver='auto')
